@@ -4,12 +4,20 @@ const express = require('express'),
       bodyParser = require('body-parser'),
       dishRouter = require('./routes/dishRouter'),
       promoRouter = require('./routes/promoRouter'),
-      leaderRouter = require('./routes/leaderRouter');
-
+      leaderRouter = require('./routes/leaderRouter'),
+      mongoose = require('mongoose'),
+      Dishes = require('./models/dishes');
 const hostname = 'localhost';
 const port = 3000;
 const app = express();
 
+
+const url = 'mongodb://localhost:27017/conFusion';
+const connect = mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true });
+
+connect.then((db) => {
+  console.log("Connected correctly to server");
+}, (err) => { console.log(err); });
 
 app.use(morgan('dev'));
 app.use(express.static(__dirname + '/public')); // serving static files
