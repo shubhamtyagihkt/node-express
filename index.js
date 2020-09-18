@@ -20,6 +20,9 @@ connect.then((db) => {
 }, (err) => { console.log(err); });
 
 app.use(morgan('dev'));
+
+
+
 app.use(express.static(__dirname + '/public')); // serving static files
 
 app.use(bodyParser.json());
