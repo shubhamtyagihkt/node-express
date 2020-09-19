@@ -7,7 +7,9 @@ const express = require('express'),
       leaderRouter = require('./routes/leaderRouter'),
       mongoose = require('mongoose'),
       Dishes = require('./models/dishes'),
-      cookieParser = require('cookie-parser');
+      cookieParser = require('cookie-parser'),
+      session = require('express-session'),
+      FileStore = require('session-file-store')(session);
 const hostname = 'localhost';
 const port = 3000;
 const app = express();
@@ -24,8 +26,17 @@ app.use(morgan('dev'));
 
 app.use(cookieParser('12345-67890-09876-54321'));
 
+app.use(session({
+  name: 'session-id',
+  secret: '12345-67890-09876-54321',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}));
+
+
 function auth(req, res, next) {
-  if (!req.signedCookies.user) {
+  if (!req.session.user) {
     var authHeader = req.headers.authorization;
     if (!authHeader) {
         var err = new Error('You are not authenticated!');
@@ -48,7 +59,7 @@ function auth(req, res, next) {
     }
   }
   else {
-      if (req.signedCookies.user === 'admin') {
+      if (req.session.user === 'admin') {
           next();
       }
       else {
