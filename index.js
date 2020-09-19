@@ -10,7 +10,9 @@ const express = require('express'),
       Dishes = require('./models/dishes'),
       cookieParser = require('cookie-parser'),
       session = require('express-session'),
-      FileStore = require('session-file-store')(session);
+      FileStore = require('session-file-store')(session),
+      passport = require('passport'),
+      authenticate = require('./authenticate');
 const hostname = 'localhost';
 const port = 3000;
 const app = express();
@@ -36,25 +38,22 @@ app.use(session({
   store: new FileStore()
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 // app.use('/', indexRouter);
 app.use('/user', userRouter);
 
 
 function auth(req, res, next) {
-  if(!req.session.user) {
+  console.log(req.user);
+  if(!req.user) {
     var err = new Error('You are not authenticated!');
     err.status = 403;
     return next(err);
   }
   else {
-    if (req.session.user === 'authenticated') {
-      next();
-    }
-    else {
-      var err = new Error('You are not authenticated!');
-      err.status = 403;
-      return next(err);
-    }
+    next();
   }
 }
 
