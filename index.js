@@ -12,13 +12,14 @@ const express = require('express'),
       session = require('express-session'),
       FileStore = require('session-file-store')(session),
       passport = require('passport'),
-      authenticate = require('./authenticate');
+      authenticate = require('./authenticate'),
+      config = require('./config');
 const hostname = 'localhost';
 const port = 3000;
 const app = express();
 
 
-const url = 'mongodb://localhost:27017/conFusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true });
 
 connect.then((db) => {
@@ -29,35 +30,10 @@ app.use(morgan('dev'));
 
 app.use(cookieParser('12345-67890-09876-54321'));
 
-
-app.use(session({
-  name: 'session-id',
-  secret: '12345-67890-09876-54321',
-  saveUninitialized: false,
-  resave: false,
-  store: new FileStore()
-}));
-
 app.use(passport.initialize());
-app.use(passport.session());
 
 // app.use('/', indexRouter);
 app.use('/user', userRouter);
-
-
-function auth(req, res, next) {
-  console.log(req.user);
-  if(!req.user) {
-    var err = new Error('You are not authenticated!');
-    err.status = 403;
-    return next(err);
-  }
-  else {
-    next();
-  }
-}
-
-app.use(auth);
 
 app.use(express.static(__dirname + '/public')); // serving static files
 
