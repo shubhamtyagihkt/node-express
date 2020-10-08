@@ -15,7 +15,8 @@ const express = require('express'),
       authenticate = require('./authenticate'),
       config = require('./config'),
       fs = require('fs'),
-      https = require('https');
+      https = require('https'),
+      uploadRouter = require('./routes/uploadRouter');
 const hostname = 'localhost';
 const port = 3000;
 const app = express();
@@ -55,6 +56,7 @@ app.use(bodyParser.json());
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
+app.use('/imageUpload', uploadRouter);
 
 const server = http.createServer(app);
 /**
