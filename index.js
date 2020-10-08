@@ -13,11 +13,23 @@ const express = require('express'),
       FileStore = require('session-file-store')(session),
       passport = require('passport'),
       authenticate = require('./authenticate'),
-      config = require('./config');
+      config = require('./config'),
+      fs = require('fs'),
+      https = require('https');
 const hostname = 'localhost';
 const port = 3000;
 const app = express();
+app.set('secPort',port+443);
 
+// Secure traffic only
+app.all('*', (req, res, next) => {
+  if (req.secure) {
+    return next();
+  }
+  else {
+    res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url);
+  }
+});
 
 const url = config.mongoUrl;
 const connect = mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -32,6 +44,7 @@ app.use(cookieParser('12345-67890-09876-54321'));
 
 app.use(passport.initialize());
 
+
 // app.use('/', indexRouter);
 app.use('/user', userRouter);
 
@@ -44,6 +57,24 @@ app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
 
 const server = http.createServer(app);
+/**
+ * Create HTTPS server.
+ */ 
+ 
+var options = {
+  key: fs.readFileSync(__dirname+'/private.key'),
+  cert: fs.readFileSync(__dirname+'/certificate.pem')
+};
+
+var secureServer = https.createServer(options,app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+secureServer.listen(app.get('secPort'), () => {
+   console.log('Server listening on port ',app.get('secPort'));
+});
 
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
