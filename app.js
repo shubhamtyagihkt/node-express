@@ -16,7 +16,8 @@ const express = require('express'),
       config = require('./config'),
       fs = require('fs'),
       https = require('https'),
-      uploadRouter = require('./routes/uploadRouter');
+      uploadRouter = require('./routes/uploadRouter'),
+      favoriteRouter = require('./routes/favoriteRouter');
 const hostname = 'localhost';
 const port = 3000;
 const app = express();
@@ -46,17 +47,17 @@ app.use(cookieParser('12345-67890-09876-54321'));
 app.use(passport.initialize());
 
 
-// app.use('/', indexRouter);
-app.use('/user', userRouter);
 
+// ROUTERS
 app.use(express.static(__dirname + '/public')); // serving static files
 
 app.use(bodyParser.json());
-
+app.use('/user', userRouter);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
 app.use('/imageUpload', uploadRouter);
+app.use('/favorites', favoriteRouter);
 
 const server = http.createServer(app);
 /**
